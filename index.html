@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<!-- 繁體中文 -->
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>上傳圖片預覽圖片、格式防呆</title>
+</head>
+<style>
+  #previewArea {
+    background: grey;
+    width: 300px;
+    height: 300px;
+  }
+
+  #preview {
+    width: 100%;
+    height: auto;
+  }
+
+  .label {
+    background: pink;
+    width: fit-content;
+    padding: 10px;
+    color: white;
+    cursor: pointer;
+  }
+</style>
+
+<body>
+  <section>
+    <h1>
+      上傳圖片，預覽圖片。</br>
+      格式限制只能是 image/jpeg、image/png、image/gif
+    </h1>
+    <div>
+      <label for="fileInput" class="label">點我，上傳圖片~</label>
+      <input type="file" id="fileInput" accept="image/*">
+      <!-- accept="image/* 的意思，是預設上傳檔案會先幫你篩選圖片格式-->
+      <!-- 但 user 還是可以自行選擇全部格式，然後上傳 pdf 檔案 -->
+
+      <div id="previewArea">
+        <p>圖片預覽區</p>
+        <img id="preview">
+      </div>
+    </div>
+
+    <div>
+      <p>查看目前檔案物件</p>
+      <p class="seeFile"></p>
+    </div>
+  </section>
+  <script>
+    document.getElementById('fileInput').addEventListener('change', function (event) {
+      // 監聽 input
+      const file = event.target.files[0];
+      const validFormats = ['image/jpeg', 'image/png', 'image/gif']; // 支持的圖片格式
+      const previewImage = document.getElementById('preview'); // 預覽圖片的那個 img 元素
+      //
+      let seeFileTxt = document.querySelector('.seeFile');
+
+      console.log(event.target.files[0]); // 查看回傳的物件(原生 JS 特性)
+      seeFileTxt.textContent =
+        'lastModified：' + `${file.lastModified}` +
+        'lastModifiedDate：' + `${file.lastModifiedDate}` +
+        'name：' + `${file.name}`;
+
+      previewImage.src = ''; // 清空預覽圖片
+      if (file) { // 若選擇到檔案
+        // 先防呆
+        if (!validFormats.includes(file.type)) {
+          // 不是圖片
+          alert('這不是圖片格式');
+          event.target.value = '';// 清空 input
+          previewImage.src = ''; // 清空預覽圖片
+          return;
+        } else {
+          // 是圖片
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            console.log(e.target.result); // 查看，是 base64 格式
+            previewImage.src = e.target.result;
+            previewImage.style.display = 'block'; // 顯示圖片
+          }
+          reader.readAsDataURL(file); // 讀取圖片(放在 reader.onload 之後)
+        }
+      } else {
+        alert('無法讀取檔案!')
+      }
+    });
+
+  </script>
+</body>
+
+</html>
